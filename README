@@ -1,0 +1,4 @@
+Generates a bitmap file with a maze.
+
+Flags are:
+    width height

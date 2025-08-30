@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.30.1)
+project(maze-generator
+    VERSION 1.0.1
+    LANGUAGES CXX
+)
+
+include(CTest)
+
+add_subdirectory(lib/bitmap)
+
+# The executable code is here
+add_subdirectory(src)
+
+
+# Testing only available if this is the main app
+# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR BUILD_TESTING)
+    AND BUILD_TESTING)
+    # add_subdirectory(test)
+endif()
+
+
