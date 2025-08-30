@@ -1,0 +1,3 @@
+[submodule "bitmap"]
+	path = lib/bitmap
+	url = https://github.com/IsaacP84/bitmap
