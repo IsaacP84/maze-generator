@@ -38,9 +38,8 @@ public:
     Grid(int x, int y);
     ~Grid();
 
-    void deAlloc();
-
     // Build the maze
+    void generate();
     void generate(Tile &tile);
 
     // 1 step in generation

@@ -37,6 +37,11 @@ Grid::~Grid()
     delete[] matrix;
 }
 
+void Grid::generate()
+{
+    generate(this->matrix[0][0]);
+}
+
 void Grid::generate(Tile &root)
 {
     cout << "\33[2K\r"

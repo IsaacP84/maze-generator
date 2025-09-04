@@ -147,7 +147,7 @@ GenerationParameters decipherArguments(int argc, char *argv[])
 
             if (std::filesystem::is_directory(path_to_check))
             {
-                std::cout << p.output_path << " is an invalid location." << std::endl;
+                std::cout << path_to_check << " is an invalid location." << std::endl;
                 continue;
             }
 
