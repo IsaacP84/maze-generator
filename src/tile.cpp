@@ -25,17 +25,17 @@ Tile::~Tile()
         pSibling->nSibling = nSibling;
 }
 
-const int Tile::getX()
+int Tile::getX()
 {
     return this->x;
 }
 
-const int Tile::getY()
+int Tile::getY()
 {
     return this->y;
 }
 
-const int Tile::getSiblings()
+int Tile::getSiblings()
 {
     return *siblings;
 }
@@ -177,7 +177,7 @@ Tile *Tile::randomChild()
 
 void Tile::display(bool recursive)
 {
-
+    // display as node tree
     cout << *this;
     if (!fChild)
         return;

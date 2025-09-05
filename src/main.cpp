@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 
     GenerationParameters p = decipherArguments(argc, argv);
 
-    
     // first arg is the cwd
     // 2nd arg is width
     // 3rd arg is height
@@ -114,8 +113,8 @@ GenerationParameters decipherArguments(int argc, char *argv[])
     }
 
     bool seedFlag = false;
-    bool rFlag = false;
-    bool oFlag = false;
+    // bool rFlag = false;
+    // bool oFlag = false;
 
     // Run through arguments
     for (int i = 3; i < argc; i++)
@@ -133,7 +132,7 @@ GenerationParameters decipherArguments(int argc, char *argv[])
         {
             maze_int x = (unsigned int)atol(argv[++i]);
             maze_int y = (unsigned int)atol(argv[++i]);
-            rFlag = true;
+            // rFlag = true;
 
             p.start_x = x;
             p.start_y = y;
@@ -142,7 +141,7 @@ GenerationParameters decipherArguments(int argc, char *argv[])
         // Output
         if ((string)argv[i] == "-o")
         {
-            oFlag = true;
+            // oFlag = true;
             std::filesystem::path path_to_check = (string)argv[++i];
 
             if (std::filesystem::is_directory(path_to_check))
@@ -151,7 +150,8 @@ GenerationParameters decipherArguments(int argc, char *argv[])
                 continue;
             }
 
-            if(std::filesystem::exists(path_to_check)) {
+            if (std::filesystem::exists(path_to_check))
+            {
                 std::cout << path_to_check << " already exists." << std::endl;
                 continue;
             }

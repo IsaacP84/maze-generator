@@ -56,59 +56,63 @@ void Grid::generate(Tile &root)
     parent = nullptr;
     cout << "\33[2K\r"
          << "Generating" << endl;
-    while (step(false))
-        ; // Purposefully empty
+
+    while (true)
+    {
+        if (!step())
+            break;
+    }
+
     cout << "\33[2K\r"
          << "\r\033[A";
     cout << "Finished Generation";
 }
 
-bool Grid::step(bool showDebug)
+bool Grid::step()
 {
-    if (showDebug)
-    {
-        cout << "Step: " << iteration++ << endl;
-        cout << "doneCount: " << doneCount << endl;
-    }
-    else
-    {
-        if (width * height / 100 > 0)
-            if (doneCount % (width * height / 100) == 0)
-                cout << "\33[2K\r" << (doneCount + 0.0) / (width * height) * 100 << "%";
-    }
+#ifdef DEBUG
+    cout << "Step: " << iteration++ << endl;
+    cout << "doneCount: " << doneCount << endl;
+#else
+    if (width * height / 100 > 0)
+        if (doneCount % (width * height / 100) == 0)
+            cout << "\33[2K\r" << (doneCount + 0.0) / (width * height) * 100 << "%";
+#endif
 
     Tile *child = frontier.top();
 
     int x = child->getX();
     int y = child->getY();
-    if (showDebug)
-    {
-        if (parent)
-            cout << "\tCurrent Parent: " << *parent << endl;
-        cout << "\tCurrent Child: " << *child << endl;
-        cout << "Before: Printing a 2D Array:\n";
-        displayStages(x, y);
-    }
+
+#ifdef DEBUG
+    if (parent)
+        cout << "\tCurrent Parent: " << *parent << endl;
+    cout << "\tCurrent Child: " << *child << endl;
+    cout << "Before: Printing a 2D Array:\n";
+    displayStages(x, y);
+
+#endif
 
     // valid neighbors
     auto n = neighbors(*child, true);
     int validNeighborsLength = n.size();
-    if (showDebug)
-        cout << "Valid Neighbors Count: " << validNeighborsLength << endl;
+#ifdef DEBUG
+    cout << "Valid Neighbors Count: " << validNeighborsLength << endl;
+#endif
 
     if (validNeighborsLength != 0)
     {
         int index = rand() % validNeighborsLength;
         for (int i = 0; i < index; i++)
-        {
             n.pop_front();
-        }
+
         Tile *next = n.front();
 
         // add to frontier
         frontier.push(next);
-        if (showDebug)
-            cout << "Pushed: " << *frontier.top() << endl;
+#ifdef DEBUG
+        cout << "Pushed: " << *frontier.top() << endl;
+#endif
         next->data = 1;
 
         if (child->data != 2)
@@ -133,9 +137,11 @@ bool Grid::step(bool showDebug)
             child->data = 2;
         }
 
+        
+#ifdef DEBUG
+        cout << "Popped: " << *frontier.top() << endl;
+#endif
         // back up
-        if (showDebug)
-            cout << "Popped: " << *frontier.top() << endl;
         frontier.pop();
         parent = frontier.top();
     }
@@ -143,9 +149,14 @@ bool Grid::step(bool showDebug)
     // if (iteration > MAX_ITERATIONS) return false;
     if (doneCount == width * height)
         return false;
+    
+    // if nothing in stack
+    // if(frontier.size() == 0)
+    //     return false;
     return true;
 }
 
+#ifdef DEBUG
 void Grid::doWalls(Tile *tile, bool recurse)
 {
     Tile *child = tile->firstChild();
@@ -158,6 +169,7 @@ void Grid::doWalls(Tile *tile, bool recurse)
         child = child->nextSibling();
     }
 }
+
 
 void Grid::display()
 {
@@ -253,6 +265,7 @@ void Grid::display()
     }
     delete[] pixelMap;
 }
+#endif
 
 std::unique_ptr<BMP> Grid::getBitMap()
 {
@@ -313,6 +326,7 @@ std::unique_ptr<BMP> Grid::getBitMap()
     return map;
 }
 
+#ifdef DEBUG
 void Grid::displayStages()
 {
     for (int j = 0; j < height; j++)
@@ -374,6 +388,7 @@ void Grid::displayStages(int x, int y)
     }
 }
 
+
 char Grid::getDisplayChar(int value)
 {
     switch (value)
@@ -404,6 +419,9 @@ char Grid::getDisplayChar(int value)
 
     return '!';
 }
+
+#endif
+
 
 std::list<Tile *> Grid::neighbors(Tile &tile, bool useStages)
 {

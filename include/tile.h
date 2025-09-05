@@ -40,9 +40,9 @@ public:
     // 3: Room
     int data = 0;
 
-    const int getX();
-    const int getY();
-    const int getSiblings();
+    int getX();
+    int getY();
+    int getSiblings();
 
     bool isNorth(Tile &tile);
     bool isEast(Tile &tile);
@@ -56,11 +56,11 @@ public:
 
     // Return 1 if fails
     int open(Tile *tile);
-    
+
     Tile *firstChild();
     Tile *nextSibling();
     Tile *prevSibling();
-    
+
     // sets the firstChild or the next available sibling
     void addChild(Tile *tile);
 
@@ -69,7 +69,7 @@ public:
 
     void display(bool recursive = false);
 
-    friend std::ostream& operator<<(std::ostream &out, Tile &data);
+    friend std::ostream &operator<<(std::ostream &out, Tile &data);
 };
 
 #endif

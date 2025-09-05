@@ -9,12 +9,10 @@
 #include "tile.h"
 #include "bitmap.h"
 
-
-
 class Grid
 {
 private:
-    char getDisplayChar(int value);
+    static char getDisplayChar(int value);
 
     Tile *parent;
 
@@ -26,10 +24,11 @@ private:
 
     Tile *root;
 
-
+#ifdef DEBUG
     // Sets each tiles walls values depending on its children
     void doWalls(Tile *tile, bool recurse = true);
 
+#endif
 public:
     Tile **matrix;
     int width;
@@ -44,14 +43,13 @@ public:
 
     // 1 step in generation
     // Returns true if can continue
-    bool step(bool showDebug = false);
+    bool step();
 
     // Returns NESW
-    std::list<Tile *> neighbors(Tile &tile, bool useStages=false);
+    std::list<Tile *> neighbors(Tile &tile, bool useStages = false);
 
     // Returns NESW
-    std::list<Tile *> neighbors(int x, int y, bool useStages=false);
-
+    std::list<Tile *> neighbors(int x, int y, bool useStages = false);
 
     void display();
 
@@ -61,5 +59,5 @@ public:
 
     void displayStages(int x, int y);
 
-    friend std::ostream& operator<<(std::ostream &out, Grid &grid);
+    friend std::ostream &operator<<(std::ostream &out, Grid &grid);
 };
