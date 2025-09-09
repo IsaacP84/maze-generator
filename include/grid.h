@@ -31,8 +31,8 @@ private:
 #endif
 public:
     Tile **matrix;
-    int width;
-    int height;
+    const int width;
+    const int height;
 
     Grid(int x, int y);
     ~Grid();

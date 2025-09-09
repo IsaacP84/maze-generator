@@ -13,6 +13,9 @@ add_subdirectory(lib/bitmap)
 # The executable code is here
 add_subdirectory(src)
 
+# The executable app is here
+add_subdirectory(app)
+
 
 
 if(CMAKE_BUILD_TYPE STREQUAL Release)

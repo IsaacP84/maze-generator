@@ -11,9 +11,8 @@
 using namespace std;
 
 Grid::Grid(int x, int y)
+    : width(x), height(y)
 {
-    width = x;
-    height = y;
     matrix = new Tile *[width];
     for (int i = 0; i < width; i++)
     {
@@ -137,7 +136,6 @@ bool Grid::step()
             child->data = 2;
         }
 
-        
 #ifdef DEBUG
         cout << "Popped: " << *frontier.top() << endl;
 #endif
@@ -149,7 +147,7 @@ bool Grid::step()
     // if (iteration > MAX_ITERATIONS) return false;
     if (doneCount == width * height)
         return false;
-    
+
     // if nothing in stack
     // if(frontier.size() == 0)
     //     return false;
@@ -169,7 +167,6 @@ void Grid::doWalls(Tile *tile, bool recurse)
         child = child->nextSibling();
     }
 }
-
 
 void Grid::display()
 {
@@ -388,7 +385,6 @@ void Grid::displayStages(int x, int y)
     }
 }
 
-
 char Grid::getDisplayChar(int value)
 {
     switch (value)
@@ -421,7 +417,6 @@ char Grid::getDisplayChar(int value)
 }
 
 #endif
-
 
 std::list<Tile *> Grid::neighbors(Tile &tile, bool useStages)
 {
