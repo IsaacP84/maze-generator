@@ -7,8 +7,9 @@ project(maze-generator
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra")
 
-
-add_subdirectory(lib/bitmap)
+if(NOT TARGET bitmap)
+    add_subdirectory(lib/bitmap)
+endif()
 
 # The executable code is here
 add_subdirectory(src)
