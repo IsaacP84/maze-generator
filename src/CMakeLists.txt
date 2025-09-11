@@ -1,6 +1,7 @@
 add_library(
     Grid
     tile.cpp
+    node.cpp
     grid.cpp
 )
 

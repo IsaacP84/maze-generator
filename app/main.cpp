@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "tile.h"
 #include "grid.h"
 #include "bitmap.h"
@@ -42,7 +43,10 @@ int main(int argc, char *argv[])
     //     printf("%s\n", argv[i]);
     // }
 
-    cout << "Hello world";
+    cout << "Hello world" << endl;
+    #ifdef DEBUG
+    cout << "DEBUG ENABLED" << endl;
+    #endif
 
     // flag -r : define root node
     // x

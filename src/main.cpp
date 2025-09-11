@@ -1,3 +1,5 @@
+#define DEBUG
+
 #include "tile.h"
 #include "grid.h"
 #include "bitmap.h"
@@ -5,6 +7,7 @@
 #include <time.h>
 #include <iostream>
 #include <filesystem>
+
 
 using namespace std;
 using maze_int = unsigned int;

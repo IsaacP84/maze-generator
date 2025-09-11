@@ -4,33 +4,13 @@
 #include <iostream>
 #include <array>
 #include <memory>
+#include <cstdint>
+
 
 class Tile
 {
-private:
-    unsigned int x;
-    unsigned int y;
-
-    // first child
-    Tile *fChild = nullptr;
-
-    // next sibling
-    Tile *nSibling = nullptr;
-
-    // previous sibling
-    Tile *pSibling = nullptr;
-
-    // A reference to a collective integer representing the number of siblings
-    std::shared_ptr<int> siblings = std::make_shared<int>(int(1));
-    // sets the nextSibling
-    void addSibling(Tile *tile);
-
-public:
-    Tile();
-    Tile(unsigned int x, unsigned int y);
-    ~Tile();
-
-    bool done = false;
+    uint32_t x;
+    uint32_t y;
 
     // Used in maze generation
     // Any cases used are to be added here
@@ -38,10 +18,29 @@ public:
     // 1: frontier
     // 2: done
     // 3: Room
-    int data = 0;
+    
+    
 
-    int getX();
-    int getY();
+public: 
+    enum TYPE
+    {
+        EMPTY,
+        WALL
+    };
+
+    TYPE data = EMPTY;
+
+    
+    Tile();
+    Tile(uint32_t x, uint32_t y);
+    // ~Tile();
+
+    bool done = false;
+
+    
+
+    uint32_t getX();
+    uint32_t getY();
     int getSiblings();
 
     bool isNorth(Tile &tile);
@@ -55,7 +54,7 @@ public:
     bool westWall = true;
 
     // Return 1 if fails
-    int open(Tile *tile);
+    bool open(Tile *tile);
 
     Tile *firstChild();
     Tile *nextSibling();
