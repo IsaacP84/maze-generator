@@ -1,3 +1,4 @@
+#pragma once
 #include "tile.h"
 class Node
 {

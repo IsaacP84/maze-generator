@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     #ifdef DEBUG
     cout << "DEBUG ENABLED" << endl;
     #endif
+    cout << endl;
 
     // flag -r : define root node
     // x

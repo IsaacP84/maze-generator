@@ -99,7 +99,7 @@ void Grid::generate(Tile &root)
             while (it != n.end())
             {
                 Tile *tp = *it;
-                ASSERT(it == n.end());
+                ASSERT(it != n.end());
                 uint32_t index = (*it)->getX() * width + (*it)->getY();
                 if (graph[index].visited)
                 {
@@ -260,18 +260,18 @@ void Grid::generate(Tile &root)
 // }
 
 #ifdef DEBUG
-void Grid::doWalls(Tile *tile, bool recurse)
-{
-    Tile *child = tile->firstChild();
+// void Grid::doWalls(Tile *tile, bool recurse)
+// {
+//     Tile *child = tile->firstChild();
 
-    while (child)
-    {
-        tile->open(child);
-        // cout << *tile << "->" << *child << endl;
-        doWalls(child);
-        child = child->nextSibling();
-    }
-}
+//     while (child)
+//     {
+//         tile->open(child);
+//         // cout << *tile << "->" << *child << endl;
+//         doWalls(child);
+//         child = child->nextSibling();
+//     }
+// }
 
 void Grid::display()
 {
