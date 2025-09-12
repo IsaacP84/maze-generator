@@ -10,10 +10,11 @@ Tile::Tile()
 {
 }
 
-Tile::Tile(unsigned int x, unsigned int y)
+Tile::Tile(uint32_t x, uint32_t y)
+:x(x), y(y)
 {
-    this->x = x;
-    this->y = y;
+    // this->x = x;
+    // this->y = y;
 }
 
 

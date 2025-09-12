@@ -1,5 +1,7 @@
 #pragma once
 #include "tile.h"
+#include "dir.h"
+
 class Node
 {
     // first child

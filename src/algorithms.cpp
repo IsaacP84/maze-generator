@@ -3,14 +3,7 @@
 
 #include <chrono>
 
-// Define directions for movement in a grid
-enum Direction
-{
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT
-};
+
 
 
 // Function to perform Randomized DFS for maze generation

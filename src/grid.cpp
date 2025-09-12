@@ -45,7 +45,7 @@ void Grid::generate()
 void Grid::generate(Tile &root)
 {
     // cout << "\33[2K\r"
-    //      << "Beginning Generation";
+    cout << "Beginning Generation" << endl;
 
     const uint32_t length = width * height;
 
@@ -80,8 +80,6 @@ void Grid::generate(Tile &root)
     // cout << "\33[2K\r"
     //      << "Generating" << endl;
 
-    srand(0);
-
     bool running = true;
     while (running)
     {
@@ -98,7 +96,6 @@ void Grid::generate(Tile &root)
             auto it = n.begin();
             while (it != n.end())
             {
-                Tile *tp = *it;
                 ASSERT(it != n.end());
                 uint32_t index = (*it)->getX() * width + (*it)->getY();
                 if (graph[index].visited)
@@ -119,14 +116,6 @@ void Grid::generate(Tile &root)
 
             auto it = n.begin();
             advance(it, index);
-
-            // for (auto it = n.begin(); it != n.end(); ++it)
-            // {
-
-            //     uint32_t index = (*it)->getX() * width + (*it)->getY();
-            //     cout << *graph[index].tile << endl;
-
-            // }
 
             Tile *next = *it;
             uint32_t next_index = next->getX() * width + next->getY();
@@ -169,9 +158,9 @@ void Grid::generate(Tile &root)
 
     delete[] graph;
 
-    cout << "\33[2K\r"
-         << "\r\033[A";
-    cout << "Finished Generation";
+    // cout << "\33[2K\r"
+    //      << "\r\033[A";
+    cout << "Finished Generation" << endl;
 }
 
 // bool Grid::step()
@@ -371,9 +360,10 @@ void Grid::display()
 
 std::unique_ptr<BMP> Grid::getBitMap()
 {
-    // Using 3 x 3 pixel cells;
-    unsigned int mapWidth = width * 3;
-    unsigned int mapHeight = height * 3;
+    // Using 4 x 4 pixel cells;
+    // 2 wide center
+    uint32_t mapWidth = width * 3;
+    uint32_t mapHeight = height * 3;
     unique_ptr<BMP> map = make_unique<BMP>(mapWidth, mapHeight, 1);
     map->addColor(255, 255, 255);
     map->addColor(0, 0, 0);
@@ -382,7 +372,7 @@ std::unique_ptr<BMP> Grid::getBitMap()
     {
         for (unsigned int j = 0; j < mapHeight; j++)
         {
-            map->data[i][j] = 1;
+            map->setPixel(i, j, 1);
             // gets the corners of a 3 x 3 cell
             if (
                 (j % 3 == 0 || j % 3 == 2) &&
@@ -397,30 +387,30 @@ std::unique_ptr<BMP> Grid::getBitMap()
             if ((i % 3 == 1) && (j % 3 == 2))
             {
                 // North Wall
-                map->data[i][j] = matrix[x][y].northWall;
+                map->setPixel(i, j, matrix[x][y].northWall);
             }
 
             if ((i % 3 == 0) && (j % 3 == 1))
             {
                 // East Wall
-                map->data[i][j] = matrix[x][y].eastWall;
+                map->setPixel(i, j, matrix[x][y].eastWall);
             }
 
             if ((i % 3 == 1) && (j % 3 == 0))
             {
                 // South Wall
-                map->data[i][j] = matrix[x][y].southWall;
+                map->setPixel(i, j, matrix[x][y].southWall);
             }
 
             if ((i % 3 == 2) && (j % 3 == 1))
             {
                 // West Wall
-                map->data[i][j] = matrix[x][y].westWall;
+                map->setPixel(i, j, matrix[x][y].westWall);
             }
 
             if (j % 3 == 1 && i % 3 == 1)
             {
-                map->data[i][j] = 0;
+                map->setPixel(i, j, 0);
             }
         }
     }

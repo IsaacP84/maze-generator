@@ -12,20 +12,12 @@ class Tile
     uint32_t x;
     uint32_t y;
 
-    // Used in maze generation
-    // Any cases used are to be added here
-    // 0: not used
-    // 1: frontier
-    // 2: done
-    // 3: Room
-    
-    
-
 public: 
     enum TYPE
     {
         EMPTY,
-        WALL
+        WALL,
+        ROOM
     };
 
     TYPE data = EMPTY;
@@ -35,13 +27,8 @@ public:
     Tile(uint32_t x, uint32_t y);
     // ~Tile();
 
-    bool done = false;
-
-    
-
     uint32_t getX();
     uint32_t getY();
-    int getSiblings();
 
     bool isNorth(Tile &tile);
     bool isEast(Tile &tile);
@@ -55,16 +42,6 @@ public:
 
     // Return 1 if fails
     bool open(Tile *tile);
-
-    Tile *firstChild();
-    Tile *nextSibling();
-    Tile *prevSibling();
-
-    // sets the firstChild or the next available sibling
-    void addChild(Tile *tile);
-
-    // gets back a random child
-    Tile *randomChild();
 
     void display(bool recursive = false);
 
