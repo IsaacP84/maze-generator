@@ -4,45 +4,31 @@
 #include <iostream>
 #include <array>
 #include <memory>
+#include <cstdint>
+
 
 class Tile
 {
-private:
-    unsigned int x;
-    unsigned int y;
+    uint32_t x;
+    uint32_t y;
 
-    // first child
-    Tile *fChild = nullptr;
+public: 
+    enum TYPE
+    {
+        EMPTY,
+        WALL,
+        ROOM
+    };
 
-    // next sibling
-    Tile *nSibling = nullptr;
+    TYPE data = EMPTY;
 
-    // previous sibling
-    Tile *pSibling = nullptr;
-
-    // A reference to a collective integer representing the number of siblings
-    std::shared_ptr<int> siblings = std::make_shared<int>(int(1));
-    // sets the nextSibling
-    void addSibling(Tile *tile);
-
-public:
+    
     Tile();
-    Tile(unsigned int x, unsigned int y);
-    ~Tile();
+    Tile(uint32_t x, uint32_t y);
+    // ~Tile();
 
-    bool done = false;
-
-    // Used in maze generation
-    // Any cases used are to be added here
-    // 0: not used
-    // 1: frontier
-    // 2: done
-    // 3: Room
-    int data = 0;
-
-    int getX();
-    int getY();
-    int getSiblings();
+    uint32_t getX();
+    uint32_t getY();
 
     bool isNorth(Tile &tile);
     bool isEast(Tile &tile);
@@ -55,17 +41,7 @@ public:
     bool westWall = true;
 
     // Return 1 if fails
-    int open(Tile *tile);
-
-    Tile *firstChild();
-    Tile *nextSibling();
-    Tile *prevSibling();
-
-    // sets the firstChild or the next available sibling
-    void addChild(Tile *tile);
-
-    // gets back a random child
-    Tile *randomChild();
+    bool open(Tile *tile);
 
     void display(bool recursive = false);
 

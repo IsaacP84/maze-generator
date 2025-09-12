@@ -10,50 +10,26 @@ Tile::Tile()
 {
 }
 
-Tile::Tile(unsigned int x, unsigned int y)
+Tile::Tile(uint32_t x, uint32_t y)
+:x(x), y(y)
 {
-    this->x = x;
-    this->y = y;
+    // this->x = x;
+    // this->y = y;
 }
 
-Tile::~Tile()
-{
-    (*siblings)--;
-    if (nSibling)
-        nSibling->pSibling = pSibling;
-    if (pSibling)
-        pSibling->nSibling = nSibling;
-}
 
-int Tile::getX()
+
+uint32_t Tile::getX()
 {
     return this->x;
 }
 
-int Tile::getY()
+uint32_t Tile::getY()
 {
     return this->y;
 }
 
-int Tile::getSiblings()
-{
-    return *siblings;
-}
 
-Tile *Tile::firstChild()
-{
-    return fChild;
-}
-
-Tile *Tile::nextSibling()
-{
-    return nSibling;
-}
-
-Tile *Tile::prevSibling()
-{
-    return pSibling;
-}
 
 bool Tile::isNorth(Tile &tile)
 {
@@ -83,7 +59,7 @@ bool Tile::isWest(Tile &tile)
     return false;
 }
 
-int Tile::open(Tile *tile)
+bool Tile::open(Tile *tile)
 {
     if (isNorth(*tile))
     {
@@ -113,88 +89,28 @@ int Tile::open(Tile *tile)
     return 1;
 }
 
-void Tile::addChild(Tile *tile)
-{
-    open(tile);
-    if (fChild)
-    {
-        fChild->addSibling(tile);
-        return;
-    }
 
-    fChild = tile;
-    // this is working now
-    // it was saying the integer was 0
-    // i dont know why
-    *(fChild->siblings) = 1;
-}
 
-void Tile::addSibling(Tile *tile)
-{
-    // do a check to see if the tile already has siblings
-    if (nSibling)
-    {
-        nSibling->addSibling(tile);
-        return;
-    }
-
-    // keep this one and delete the tiles
-    // not 100% sure about this
-    // might make memory leak
-    // its using a shared pointer tho
-    tile->siblings = siblings;
-
-    // siblings
-    nSibling = tile;
-    tile->pSibling = this;
-
-    // update sibling counts
-    (*siblings)++;
-}
-
-Tile *Tile::randomChild()
-{
-    int sibNum = fChild->getSiblings();
-    if (sibNum == 1)
-        return fChild;
-
-    int index = rand() % sibNum;
-    cout << "Random index: " << index << endl;
-
-    Tile **children = new Tile *[sibNum];
-
-    Tile *child = fChild;
-    for (int i = 0; i < sibNum; i++)
-    {
-        children[i] = child;
-        child = child->nextSibling();
-    }
-
-    child = children[index];
-    delete[] children;
-    return child;
-}
-
-void Tile::display(bool recursive)
-{
-    // display as node tree
-    cout << *this;
-    if (!fChild)
-        return;
-    cout << endl;
-    int sibNum = fChild->getSiblings();
-    Tile *child = fChild;
-    child = fChild;
-    for (int i = 0; i < sibNum; i++)
-    {
-        child->display(recursive);
-        if (i + 1 < sibNum)
-        {
-            cout << " - ";
-        }
-        child = child->nextSibling();
-    }
-}
+// void Tile::display(bool recursive)
+// {
+//     // display as node tree
+//     cout << *this;
+//     if (!fChild)
+//         return;
+//     cout << endl;
+//     int sibNum = fChild->getSiblings();
+//     Tile *child = fChild;
+//     child = fChild;
+//     for (int i = 0; i < sibNum; i++)
+//     {
+//         child->display(recursive);
+//         if (i + 1 < sibNum)
+//         {
+//             cout << " - ";
+//         }
+//         child = child->nextSibling();
+//     }
+// }
 
 std::ostream &operator<<(std::ostream &out, Tile &data)
 {

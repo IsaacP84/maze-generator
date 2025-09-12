@@ -1,6 +1,7 @@
-#include "tile.h"
 #include "grid.h"
-#include "bitmap.h"
+#include "node.h"
+#include "cell.h"
+#include "debug.h"
 
 #include <array>
 #include <stack>
@@ -10,14 +11,14 @@
 
 using namespace std;
 
-Grid::Grid(int x, int y)
+Grid::Grid(uint32_t x, uint32_t y)
     : width(x), height(y)
 {
     matrix = new Tile *[width];
-    for (int i = 0; i < width; i++)
+    for (uint32_t i = 0; i < width; i++)
     {
         matrix[i] = new Tile[height];
-        for (int j = 0; j < height; j++)
+        for (uint32_t j = 0; j < height; j++)
         {
             matrix[i][j] = Tile(i, j);
         }
@@ -29,7 +30,7 @@ Grid::Grid(int x, int y)
 Grid::~Grid()
 {
     // deallocate
-    for (int i = 0; i < width; i++)
+    for (uint32_t i = 0; i < width; i++)
     {
         delete[] matrix[i];
     }
@@ -43,130 +44,223 @@ void Grid::generate()
 
 void Grid::generate(Tile &root)
 {
-    cout << "\33[2K\r"
-         << "Beginning Generation";
+    // cout << "\33[2K\r"
+    cout << "Beginning Generation" << endl;
 
-    // add to frontier
-    this->root = &root;
-    root.data = 1;
-    frontier.push(&root);
+    const uint32_t length = width * height;
 
-    // Set parent
-    parent = nullptr;
-    cout << "\33[2K\r"
-         << "Generating" << endl;
-
-    while (true)
+    // whenever the vector expands it reallocates the nodes
+    // this means it moves to a new pointer invalidating all other pointers
+    // use shared pointers
+    Node *graph = new Node[length];
+    for (uint32_t i = 0; i < length; i++)
     {
-        if (!step())
-            break;
+        graph[i].tile = &matrix[i / width][i % width];
     }
 
-    cout << "\33[2K\r"
-         << "\r\033[A";
-    cout << "Finished Generation";
-}
+    // i can convert the x and y into an index
+    // x * width + y
 
-bool Grid::step()
-{
-#ifdef DEBUG
-    cout << "Step: " << iteration++ << endl;
-    cout << "doneCount: " << doneCount << endl;
-#else
-    if (width * height / 100 > 0)
-        if (doneCount % (width * height / 100) == 0)
-            cout << "\33[2K\r" << (doneCount + 0.0) / (width * height) * 100 << "%";
-#endif
+    // keep the index of the node
+    std::stack<int> frontier;
+    int current_index = root.getX() * width + root.getY();
 
-    Tile *child = frontier.top();
+    // map tiles to nodes
+    // add to frontier
+    graph[current_index].tile = &root;
+    graph[current_index].visited = true;
 
-    int x = child->getX();
-    int y = child->getY();
+    // Node rootNode;
+    // rootNode
+    // this->root = &root;
+    // root.data = 1;
+    frontier.push(current_index);
 
-#ifdef DEBUG
-    if (parent)
-        cout << "\tCurrent Parent: " << *parent << endl;
-    cout << "\tCurrent Child: " << *child << endl;
-    cout << "Before: Printing a 2D Array:\n";
-    displayStages(x, y);
+    // Set parent
+    // cout << "\33[2K\r"
+    //      << "Generating" << endl;
 
-#endif
-
-    // valid neighbors
-    auto n = neighbors(*child, true);
-    int validNeighborsLength = n.size();
-#ifdef DEBUG
-    cout << "Valid Neighbors Count: " << validNeighborsLength << endl;
-#endif
-
-    if (validNeighborsLength != 0)
+    bool running = true;
+    while (running)
     {
-        int index = rand() % validNeighborsLength;
-        for (int i = 0; i < index; i++)
-            n.pop_front();
+        current_index = frontier.top();
 
-        Tile *next = n.front();
-
-        // add to frontier
-        frontier.push(next);
-#ifdef DEBUG
-        cout << "Pushed: " << *frontier.top() << endl;
-#endif
-        next->data = 1;
-
-        if (child->data != 2)
+        // graph[current_index].visited = true;
+        LOG("Starting: " << *graph[current_index].tile)
+        // valid neighbors
+        auto n = neighbors(*graph[current_index].tile);
+        int validNeighborsLength = 0;
+        LOG("Valid Neighbors")
+        // making a new block for clarity
         {
-            child->data = 2;
-            doneCount++;
-
-            if (parent && parent != child)
+            auto it = n.begin();
+            while (it != n.end())
             {
-                parent->addChild(child);
+                ASSERT(it != n.end());
+                uint32_t index = (*it)->getX() * width + (*it)->getY();
+                if (graph[index].visited)
+                {
+                    n.erase(it++);
+
+                    continue;
+                }
+                LOG(**it)
+                validNeighborsLength++;
+                ++it;
             }
         }
 
-        parent = child;
-    }
-    else
-    {
-        if (child->data != 2)
+        if (validNeighborsLength != 0)
         {
-            parent->addChild(child);
-            doneCount++;
-            child->data = 2;
+            int index = rand() % validNeighborsLength;
+
+            auto it = n.begin();
+            advance(it, index);
+
+            Tile *next = *it;
+            uint32_t next_index = next->getX() * width + next->getY();
+
+            Node &nextNode = graph[next_index];
+            ASSERT(!graph[next_index].visited);
+            nextNode.tile = next;
+            nextNode.visited = true;
+
+            LOG("Chose: " << *nextNode.tile)
+            // Node  currentNode = graph[current_index];
+            graph[current_index].addChild(&nextNode);
+
+            // add to frontier
+            frontier.push(next_index);
+        }
+        else
+        {
+            // back up
+            frontier.pop();
         }
 
-#ifdef DEBUG
-        cout << "Popped: " << *frontier.top() << endl;
-#endif
-        // back up
-        frontier.pop();
-        parent = frontier.top();
+        // doneCount++;
+        // completed[completed_index] = graph[node_index].tile;
+        // cout << "completed: " << completed[completed_index] << endl;
+
+        if (frontier.size() == 0)
+        {
+            running = false;
+            break;
+        }
+
+        // if (iteration > MAX_ITERATIONS) return false;
+        // if (doneCount == width * height)
+        // {
+        //     running = false;
+        //     break;
+        // }
     }
 
-    // if (iteration > MAX_ITERATIONS) return false;
-    if (doneCount == width * height)
-        return false;
+    delete[] graph;
 
-    // if nothing in stack
-    // if(frontier.size() == 0)
-    //     return false;
-    return true;
+    // cout << "\33[2K\r"
+    //      << "\r\033[A";
+    cout << "Finished Generation" << endl;
 }
+
+// bool Grid::step()
+// {
+// #ifdef DEBUG
+//     cout << "Step: " << iteration++ << endl;
+//     cout << "doneCount: " << doneCount << endl;
+// #else
+//     if (width * height / 100 > 0)
+//         if (doneCount % (width * height / 100) == 0)
+//             cout << "\33[2K\r" << (doneCount + 0.0) / (width * height) * 100 << "%";
+// #endif
+
+//     Tile *child = frontier.top();
+
+//     int x = child->getX();
+//     int y = child->getY();
+
+// #ifdef DEBUG
+//     if (parent)
+//         cout << "\tCurrent Parent: " << *parent << endl;
+//     cout << "\tCurrent Child: " << *child << endl;
+//     cout << "Before: Printing a 2D Array:\n";
+//     displayStages(x, y);
+
+// #endif
+
+//     // valid neighbors
+//     auto n = neighbors(*child, true);
+//     int validNeighborsLength = n.size();
+// #ifdef DEBUG
+//     cout << "Valid Neighbors Count: " << validNeighborsLength << endl;
+// #endif
+
+//     if (validNeighborsLength != 0)
+//     {
+//         int index = rand() % validNeighborsLength;
+//         for (int i = 0; i < index; i++)
+//             n.pop_front();
+
+//         Tile *next = n.front();
+
+//         // add to frontier
+//         frontier.push(next);
+// #ifdef DEBUG
+//         cout << "Pushed: " << *frontier.top() << endl;
+// #endif
+//         next->data = 1;
+
+//         if (child->data != 2)
+//         {
+//             child->data = 2;
+//             doneCount++;
+
+//             if (parent && parent != child)
+//             {
+//                 parent->addChild(child);
+//             }
+//         }
+
+//         parent = child;
+//     }
+//     else
+//     {
+//         if (child->data != 2)
+//         {
+//             parent->addChild(child);
+//             doneCount++;
+//             child->data = 2;
+//         }
+
+//         LOG("Popped: " << *frontier.top());
+//         // back up
+//         frontier.pop();
+//         parent = frontier.top();
+//     }
+
+//     // if (iteration > MAX_ITERATIONS) return false;
+//     if (doneCount == width * height)
+//         return false;
+
+//     // if nothing in stack
+//     // if(frontier.size() == 0)
+//     //     return false;
+//     return true;
+// }
 
 #ifdef DEBUG
-void Grid::doWalls(Tile *tile, bool recurse)
-{
-    Tile *child = tile->firstChild();
+// void Grid::doWalls(Tile *tile, bool recurse)
+// {
+//     Tile *child = tile->firstChild();
 
-    while (child)
-    {
-        tile->open(child);
-        // cout << *tile << "->" << *child << endl;
-        doWalls(child);
-        child = child->nextSibling();
-    }
-}
+//     while (child)
+//     {
+//         tile->open(child);
+//         // cout << *tile << "->" << *child << endl;
+//         doWalls(child);
+//         child = child->nextSibling();
+//     }
+// }
 
 void Grid::display()
 {
@@ -266,9 +360,10 @@ void Grid::display()
 
 std::unique_ptr<BMP> Grid::getBitMap()
 {
-    // Using 3 x 3 pixel cells;
-    unsigned int mapWidth = width * 3;
-    unsigned int mapHeight = height * 3;
+    // Using 4 x 4 pixel cells;
+    // 2 wide center
+    uint32_t mapWidth = width * 3;
+    uint32_t mapHeight = height * 3;
     unique_ptr<BMP> map = make_unique<BMP>(mapWidth, mapHeight, 1);
     map->addColor(255, 255, 255);
     map->addColor(0, 0, 0);
@@ -277,7 +372,7 @@ std::unique_ptr<BMP> Grid::getBitMap()
     {
         for (unsigned int j = 0; j < mapHeight; j++)
         {
-            map->data[i][j] = 1;
+            map->setPixel(i, j, 1);
             // gets the corners of a 3 x 3 cell
             if (
                 (j % 3 == 0 || j % 3 == 2) &&
@@ -292,30 +387,30 @@ std::unique_ptr<BMP> Grid::getBitMap()
             if ((i % 3 == 1) && (j % 3 == 2))
             {
                 // North Wall
-                map->data[i][j] = matrix[x][y].northWall;
+                map->setPixel(i, j, matrix[x][y].northWall);
             }
 
             if ((i % 3 == 0) && (j % 3 == 1))
             {
                 // East Wall
-                map->data[i][j] = matrix[x][y].eastWall;
+                map->setPixel(i, j, matrix[x][y].eastWall);
             }
 
             if ((i % 3 == 1) && (j % 3 == 0))
             {
                 // South Wall
-                map->data[i][j] = matrix[x][y].southWall;
+                map->setPixel(i, j, matrix[x][y].southWall);
             }
 
             if ((i % 3 == 2) && (j % 3 == 1))
             {
                 // West Wall
-                map->data[i][j] = matrix[x][y].westWall;
+                map->setPixel(i, j, matrix[x][y].westWall);
             }
 
             if (j % 3 == 1 && i % 3 == 1)
             {
-                map->data[i][j] = 0;
+                map->setPixel(i, j, 0);
             }
         }
     }
@@ -418,51 +513,39 @@ char Grid::getDisplayChar(int value)
 
 #endif
 
-std::list<Tile *> Grid::neighbors(Tile &tile, bool useStages)
+std::list<Tile *> Grid::neighbors(Tile &tile)
 {
     // Send to actual function
-    return neighbors(tile.getX(), tile.getY(), useStages);
+    return neighbors(tile.getX(), tile.getY());
 }
 
-std::list<Tile *> Grid::neighbors(int x, int y, bool useStages)
+std::list<Tile *> Grid::neighbors(uint32_t x, uint32_t y)
 {
     std::list<Tile *> n;
 
     // NESW
-    Tile **tiles = new Tile *[4];
+    Tile *tiles[4] = {nullptr, nullptr, nullptr, nullptr};
 
-    // cout << "check: Is this a valid x and y? " << x << " " << y << endl;
+    // North
+    if (y + 1 < height && y < y + 1)
+        tiles[0] = &matrix[x][y + 1];
 
-    tiles[0] = &matrix[x][y + 1];
-    // cout << "check: Is this a valid y? " << (y + 1)  << endl;
-    if (y + 1 >= height)
-        tiles[0] = nullptr;
+    if (x > x - 1)
+        tiles[1] = &matrix[x - 1][y];
 
-    tiles[1] = &matrix[x - 1][y];
-    // cout << "check: Is this a valid x? " << (x - 1)  << endl;
-    if (x <= 0)
-        tiles[1] = nullptr;
+    if (y > y - 1)
+        tiles[2] = &matrix[x][y - 1];
 
-    tiles[2] = &matrix[x][y - 1];
-    // cout << "check: Is this a valid y? " << (y - 1)  << endl;
-    if (y <= 0)
-        tiles[2] = nullptr;
-
-    tiles[3] = &matrix[x + 1][y];
-    // cout << "check: Is this a valid x? " << (x + 1) << endl;
-    if (x + 1 >= width)
-        tiles[3] = nullptr;
+    if (x + 1 < width && x < x + 1)
+        tiles[3] = &matrix[x + 1][y];
 
     for (int i = 0; i < 4; i++)
     {
         if (tiles[i] == nullptr)
             continue;
-        if (tiles[i]->data == 2 && useStages)
-            continue;
 
         n.push_front(tiles[i]);
     }
-    delete[] tiles;
     return n;
 }
 

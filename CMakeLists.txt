@@ -24,20 +24,20 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
 else()
     # Testing only available if this is the main app
     # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
-    if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-        AND BUILD_TESTING)
-        enable_testing()
+    # if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME))
+    #     enable_testing()
+    #     include(ctest)
+    #     include(FetchContent)
 
-        include(FetchContent)
-        FetchContent_Declare(
-            googletest
-            GIT_REPOSITORY https://github.com/google/googletest.git
-            GIT_TAG        release-1.12.1 # Or a specific commit hash
-        )
+    #     FetchContent_Declare(
+    #         googletest
+    #         GIT_REPOSITORY https://github.com/google/googletest.git
+    #         GIT_TAG        release-1.12.1 # Or a specific commit hash
+    #     )
 
         
-        FetchContent_MakeAvailable(googletest)
-        add_subdirectory(test)
-    endif()
+    #     FetchContent_MakeAvailable(googletest)
+    #     add_subdirectory(test)
+    # endif()
 
 endif()

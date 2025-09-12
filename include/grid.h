@@ -4,8 +4,11 @@
 #include <array>
 #include <list>
 #include <stack>
+#include <vector>
 #include <memory>
 
+
+#include "cell.h"
 #include "tile.h"
 #include "bitmap.h"
 
@@ -20,7 +23,7 @@ private:
 
     int doneCount;
 
-    std::stack<Tile *> frontier;
+    
 
     Tile *root;
 
@@ -31,10 +34,13 @@ private:
 #endif
 public:
     Tile **matrix;
-    const int width;
-    const int height;
+    const uint32_t width;
+    const uint32_t height;
 
-    Grid(int x, int y);
+    // storage for connecting grids
+    
+
+    Grid(uint32_t x, uint32_t y);
     ~Grid();
 
     // Build the maze
@@ -46,10 +52,10 @@ public:
     bool step();
 
     // Returns NESW
-    std::list<Tile *> neighbors(Tile &tile, bool useStages = false);
+    std::list<Tile *> neighbors(Tile &tile);
 
     // Returns NESW
-    std::list<Tile *> neighbors(int x, int y, bool useStages = false);
+    std::list<Tile *> neighbors(uint32_t x, uint32_t y);
 
     void display();
 
@@ -61,3 +67,5 @@ public:
 
     friend std::ostream &operator<<(std::ostream &out, Grid &grid);
 };
+
+void randomizedDFS(std::vector<std::vector<Cell>>& maze, int start_row, int start_col);

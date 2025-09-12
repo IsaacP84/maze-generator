@@ -1,3 +1,4 @@
+#include "debug.h"
 #include "tile.h"
 #include "grid.h"
 #include "bitmap.h"
@@ -42,7 +43,11 @@ int main(int argc, char *argv[])
     //     printf("%s\n", argv[i]);
     // }
 
-    cout << "Hello world";
+    cout << "Hello world" << endl;
+#ifdef DEBUG
+    cout << "DEBUG ENABLED" << endl;
+#endif
+    cout << endl;
 
     // flag -r : define root node
     // x
@@ -56,13 +61,14 @@ int main(int argc, char *argv[])
     Grid *grid = new Grid(p.width, p.height);
     grid->generate(grid->matrix[p.start_x][p.start_y]);
 
-    cout << "\33[2K\r" << "Getting Bitmap";
+    cout << "Getting Bitmap" << endl;
     auto map = grid->getBitMap();
     delete grid;
 
-    map->toFile(p.output_path.string());
-
+    map->toFile(p.output_path);
     map.release();
+
+    cout << "All good" << endl;
 
     // cout << "\33[2K\r" << "All good";
 
@@ -74,14 +80,11 @@ int main(int argc, char *argv[])
 GenerationParameters decipherArguments(int argc, char *argv[])
 {
 
-    
-
     GenerationParameters p{
         // Width
-        (unsigned int)atol(argv[1]), 
+        (unsigned int)atol(argv[1]),
         // Height
-        (unsigned int)atol(argv[2])
-    };
+        (unsigned int)atol(argv[2])};
 
     // Default Seed
     p.seed = time(NULL);
@@ -89,29 +92,29 @@ GenerationParameters decipherArguments(int argc, char *argv[])
     p.start_y = 0;
 
     // File Path
-    // p.output_path = ".\\assets\\maze" + (string)to_string(p.seed);
-    p.output_path = ".\\assets\\maze";
+    p.output_path = filesystem::current_path().append("assets");
+
+    string fileName = "maze" + to_string(p.seed) + ".bmp";
 
     // Check for assets folder
     // If it doesn't exist, create it
     // Attempt to create the directory
-    if (!std::filesystem::is_directory(".\\assets"))
+    if (!std::filesystem::is_directory(p.output_path))
     {
         cout << "assets directory doesn't exist." << endl;
-        if (std::filesystem::create_directory(".\\assets"))
+        if (std::filesystem::create_directory(p.output_path))
         {
             std::cout << "Directory created successfully." << std::endl;
         }
         else
         {
-            std::cout << "Directory creation failed." << std::endl;
-            // ideally throw an error or something
+            throw runtime_error("Directory creation failed.");
         }
     }
 
-    std::filesystem::path path_to_check = p.output_path; // Replace with your path
+    p.output_path = p.output_path.append(fileName);
 
-    // Check if the path exists and is a directory
+    // Check if the file exists
     if (std::filesystem::exists(p.output_path))
     {
         std::cout << p.output_path << " already exists." << std::endl;
@@ -167,6 +170,5 @@ GenerationParameters decipherArguments(int argc, char *argv[])
 
     if (!seedFlag)
         cout << "Seed: " << p.seed << endl;
-
     return p;
 }
